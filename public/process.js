@@ -2,6 +2,7 @@
 $(document).ready(function(){
     // thong tin hop dong
     // ower=0xe6a137707B3AC4ACD8f02Ec5dd2Bc7d65738471b
+    
     const abi =[
         {
             "anonymous": false,
@@ -63,10 +64,13 @@ $(document).ready(function(){
     const addressSM = "0x079B3e914ce4422AB2dF64066D7e28a7EC5683A8"; //dia chi contract
     var currentAccount="";
     var id ="";
-
+    var resError = {code:null, msg:"first"};
+	checkMM();
+    
     // khai bao bien contract cho meta mask
     const web3 = new Web3(window.ethereum);
-    window.ethereum.enable();
+	
+	window.ethereum.enable();	
     var contract_MM = new web3.eth.Contract(abi,addressSM);
     console.log(contract_MM); // de xem
 
@@ -96,15 +100,16 @@ $(document).ready(function(){
         }
     });
     
-    checkMM();
+
     
     $("#connectMM").click(function(){
         connectMM().then((data)=>{
             currentAccount=data[0]; // lay gia tri account hien hanh cua meta dang ket noi
             console.log(currentAccount);
-    
-            }).catch((err)=>{
-                console.log(err);
+			ErrorMsg({code:9, msg: "Đã kết nối thành công Account " + currentAccount});
+               }).catch((err)=>{
+               //console.log(err);
+               ErrorMsg({code:err.code, msg: err.message});
             });
         }
     )
@@ -112,8 +117,9 @@ $(document).ready(function(){
             // lam gi day
             // post len node
             if (currentAccount.length==0){
-                console.log("Chay connect");
-                alert("Chạy kết nối!");
+                console.log("Chay connect");           
+				//resError.code=1; resError.msg="Chạy kết nối account Meta mask";
+                ErrorMsg({code:1, msg:"Chạy kết nối account Meta mask"});
             }else{
 
                 $.post("./dangky",{
@@ -128,10 +134,12 @@ $(document).ready(function(){
                             id=data.maloi._id;
                             contract_MM.methods.Dangky(data.maloi._id).send({
                                 from: currentAccount
-                            }).then((data)=>{ // bat loi khi khong thuc hien tiep tuc
+                            }).then((data)=>{ 
                             }).catch((err)=>{
-                                alert(err.code + "\n" + err.message);
-                                console.log(err)
+                                // bat loi khi khong thuc hien tiep tuc
+                                console.log(err);
+                                resError.code = err.code; resError.msg = err.message;
+                                ErrorMsg(resError);
                             });                 
                         
                         }else{
@@ -152,12 +160,14 @@ async function connectMM(){
     return accounts;
 }
 function checkMM(){
-    if (typeof window.ethereum !== "undefined" ){
-        console.log({ketqua:1});
-        return 1;
-    }else{
-        console.log({ketqua:0});
-        return 0;
+    if (typeof window.ethereum == "undefined" ){
+        resError={code:"000", msg: "Bạn phải cài và chạy Meta mask kết nối account để sử dụng ứng dụng này!"};
+		ErrorMsg(resError);
+    };
+}
+function ErrorMsg(_resErr){
+    if (_resErr.code !== null){
+        alert(_resErr.msg);
+        _resErr.code=null;
     }
-    
 }
