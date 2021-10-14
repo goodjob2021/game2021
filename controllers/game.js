@@ -7,7 +7,7 @@ module.exports=function(app){
     app.post("/dangky",function(req,res){
         //console.log(req);
         if (!req.body.Email || !req.body.Hoten || !req.body.SoDT){
-            res.json({ketqua:0,maloi:"khong du thong tin"})
+            res.json({ketqua:0,maloi:"Không nhập đủ thông tin!"})
         }else{
             var hocvienmoi=new hocvien({
                 Email: req.body.Email,

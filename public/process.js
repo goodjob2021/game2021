@@ -144,6 +144,7 @@ $(document).ready(function(){
                         
                         }else{
                             console.log(data);
+                            ErrorMsg({code: data.ketqua, msg: data.maloi})
                         }
                     }
                 )
